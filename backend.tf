@@ -2,6 +2,7 @@
 
 #I need to set my bucket here, and tell it what filepath(key) to put inside the bucket to store the TFstates.
 
+#is this giving it permission to read/write?? Step 1? 
 # BACKEND CONFIGURATION
 terraform {
   backend "s3" {
