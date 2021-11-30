@@ -52,14 +52,46 @@ policy = <<EOF
 }
 EOF
 }
+#You can have dozens of roles, and dozens of policies. 
+#Each policy can apply to a different role, or similar roles. They can be shared.
+#imagine you have two roles: Lambda_role1, and Lambda_role2. 
+#you also have a policy called "lambda_logging" both lambda roles, 
+#can have this policy assigned to it. using the below "policy attachement"
 
 # Policy Attachment on the role.
-
+#This tells the role which policy applies to it 
 resource "aws_iam_role_policy_attachment" "policy_attach" {
   role        = aws_iam_role.lambda_role.name #why is .name at the end? 
   policy_arn  = aws_iam_policy.lambda_logging.arn
 }
 
+resource "aws_iam_policy" "lambda_bucket_access" {
+
+  name         = "iam_policy_lambda_bucket_access"
+  path         = "/"
+  description  = "I am permissions for my bucket."
+policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::talent-academy-539350506885/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+#access for the above policy.
+resource "aws_iam_role_policy_attachment" "lambda_bucket_access" {
+  role        = aws_iam_role.lambda_role.name #why is .name at the end? 
+  policy_arn  = aws_iam_policy.lambda_bucket_access.arn
+}
 # Generates an archive from content, a file, or a directory of files.
 #what is this here for? : https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file
 #I don't understand this part either... Run terraform plan without this? Any error? 
@@ -75,8 +107,8 @@ resource "aws_iam_role_policy_attachment" "policy_attach" {
 resource "aws_lambda_function" "lambdafunc" {
   filename                       = "${path.module}/myzip/python.zip"
   function_name                  = "My_Lambda_function"
-  role                           = aws_iam_role.lambda_role.arn
+  role                           = aws_iam_role.lambda_role.arn #what is .arn
   handler                        = "index.lambda_handler"
-  runtime                        = "python3.8"
+  runtime                        = "python3.8" #how do I know this is the right version??
   depends_on                     = [aws_iam_role_policy_attachment.policy_attach]
 }
