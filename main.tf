@@ -46,12 +46,17 @@ policy = <<EOF
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
+      "Resource": "arn:aws:logs:*:*:*",
       "Effect": "Allow"
     }
   ]
 }
 EOF
 }
+#fyi, "Resource": "arn:aws:logs:*:*:*",  = "put logs anywhere"
+
+
+
 #You can have dozens of roles, and dozens of policies. 
 #Each policy can apply to a different role, or similar roles. They can be shared.
 #imagine you have two roles: Lambda_role1, and Lambda_role2. 
