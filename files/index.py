@@ -7,7 +7,7 @@
 #might not needs this. from a tutorial.
 
 def lambda_handler(event, context):
-    message = 'WHO IS YOUR PET AND WHAT DO THEY LIKE? {} , {}!!!!'.format(event['pet_name'], event['fav_food'])  
+    message = 'WHO IS YOUR PET AND WHAT DO THEY LIKE? {} eats {}!!!!'.format(event['pet_name'], event['fav_food'])  
     print(message)
 
     return { 
