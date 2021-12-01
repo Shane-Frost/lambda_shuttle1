@@ -4,10 +4,12 @@
 # This function uses event data that will be passed to the Lambda 
 # function at runtime. It will then parse the first_name and last_name and return a message response.
 
-#might not needs this. from a tutorial. 
+#might not needs this. from a tutorial.
 
 def lambda_handler(event, context):
-    message = 'Hello {} {}!'.format(event['first_name'], event['last_name'])  
+    message = 'WHO IS YOUR PET AND WHAT DO THEY LIKE? {} , {}!!!!'.format(event['pet_name'], event['fav_food'])  
+    print(message)
+
     return { 
-        'message' : message
+            'message' : message
     }

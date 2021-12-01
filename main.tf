@@ -100,20 +100,39 @@ resource "aws_iam_role_policy_attachment" "lambda_bucket_access" {
 # Generates an archive from content, a file, or a directory of files.
 #what is this here for? : https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file
 #I don't understand this part either... Run terraform plan without this? Any error? 
-# data "archive_file" "default" {
-#   type        = "zip"
-#   source_dir  = "${path.module}/files/"
-#   output_path = "${path.module}/myzip/python.zip"
-# }
+#will generate a zip file. 
+#
+data "archive_file" "pet_script" {
+  type        = "zip"
+  source_dir  = "${path.module}/files/" #source of file
+  output_path = "${path.module}/myzip/pet_info.zip" #destination of the genreated file(.zip)
+}
 
 # Create a lambda function
 # In terraform ${path.module} is the current directory.
 
 resource "aws_lambda_function" "lambdafunc" {
-  filename                       = "${path.module}/myzip/python.zip"
+
+                                  #I am setting the filename here, to be data.archive_file.pet_script.output_path 
+                                  #instead of "${path.module}/myzip/pet_info.zip" so that I only have to change it in one place,
+                                  #which would be "data" above.
+                                  #I cannot just do filename = output_path, because if there are multiple output paths, VScode
+                                  #won't know which one it is to use. So I must tell it filename = archive_file.pet_script.output_path
+  filename                       = data.archive_file.pet_script.output_path  #"${path.module}/myzip/pet_info.zip"
   function_name                  = "My_Lambda_function"
   role                           = aws_iam_role.lambda_role.arn #what is .arn
   handler                        = "index.lambda_handler"
   runtime                        = "python3.8" #how do I know this is the right version??
   depends_on                     = [aws_iam_role_policy_attachment.policy_attach]
+  #creates a crazy crunch of numbers/letters so that lambda/terraform knows a change has happened when applying
+  source_code_hash                           = data.archive_file.pet_script.output_base64sha256
 }
+
+# I have made a resource/role. called lambda_role
+# THEN. I gave it a policy. Nae, I gave it two. 
+# Then, I made policy attachements, to link them to my lambda_role. YES 
+# THEN I made the backend to tell it where to look (ireland) 
+# Then I did terraform plan, and terraform apply to push this into AWS.
+# My next step is to download the sample json file, and upload it to the s3 bucket. then create a script
+# to read it. I can go into the console under lambda > functions > my function, and hit test to run it. 
+# very exciting! 
